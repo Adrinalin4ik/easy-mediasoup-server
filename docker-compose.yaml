@@ -1,0 +1,10 @@
+version: '2'
+services:
+  mediasoup-media-server:
+    build: ./
+    expose:
+      - "3443"
+    ports:
+      - "3443:3443"
+    working_dir: /usr/src/app
+    network_mode: host
