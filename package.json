@@ -13,8 +13,10 @@
     "colors": "^1.1.2",
     "debug": "^3.1.0",
     "express": "^4.16.2",
+    "file-stream-rotator": "^0.2.0",
     "mediasoup": "^2.0.5",
-    "protoo-server": "^2.0.5"
+    "protoo-server": "^2.0.5",
+    "simple-node-logger": "^0.93.33"
   },
   "devDependencies": {
     "gulp": "git://github.com/gulpjs/gulp.git#4.0",

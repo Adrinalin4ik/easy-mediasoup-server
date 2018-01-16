@@ -9,6 +9,7 @@ module.exports =
 		cert : `${__dirname}/certs/mediasoup-demo.localhost.cert.pem`,
 		key  : `${__dirname}/certs/mediasoup-demo.localhost.key.pem`
 	},
+	numWorkers:process.env.numWorkers || 1,
 	mediasoup :
 	{
 		// mediasoup Server settings.

@@ -8,3 +8,5 @@ services:
       - "3443:3443"
     working_dir: /usr/src/app
     network_mode: host
+    environment:
+      - numWorkers=1
