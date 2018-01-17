@@ -87,7 +87,7 @@ const httpsServer = https.createServer(tls, (req, res) =>
 	res.end();
 });
 
-httpsServer.listen(3443, '0.0.0.0', () =>
+httpsServer.listen(config.serverPort, '0.0.0.0', () =>
 {
 	logger.info('protoo WebSocket server running');
 });
@@ -223,8 +223,8 @@ function openCommandConsole()
 
 					break;
 				}
-
 				case 'sd':
+					break;
 				case 'serverdump':
 				{
 					mediaServer.dump()
@@ -396,7 +396,7 @@ function openTerminal()
 			useGlobal       : true,
 			ignoreUndefined : false
 		});
-
+	terminal.context = global
 	terminal.on('exit', () => openCommandConsole());
 }
 

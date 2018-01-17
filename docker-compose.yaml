@@ -1,6 +1,23 @@
 version: '2'
 services:
-  mediasoup-media-server:
+  beta-mediasoup-media-server:
+    build: ./
+    expose:
+      - "3444"
+    ports:
+      - "3444:3444"
+    working_dir: /usr/src/app
+    network_mode: host
+    shm_size: '1gb'
+    environment:
+      - numWorkers=1
+      - maxBitrate=250000
+      - stage=beta
+      - serverPort=3444
+
+version: '2'
+services:
+  production-mediasoup-media-server:
     build: ./
     expose:
       - "3443"
@@ -8,5 +25,9 @@ services:
       - "3443:3443"
     working_dir: /usr/src/app
     network_mode: host
+    shm_size: '1gb'
     environment:
       - numWorkers=1
+      - maxBitrate=250000
+      - stage=production
+      - serverPort=3443
