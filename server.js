@@ -6,7 +6,7 @@ process.title = 'mediasoup-server';
 
 const config = require('./config');
 
-process.env.DEBUG = config.debug || '*INFO* *WARN* *ERROR*';
+process.env.DEBUG = config.debug || '*'//'*INFO* *WARN* *ERROR*';
 
 /* eslint-disable no-console */
 console.log('- process.env.DEBUG:', process.env.DEBUG);
@@ -15,9 +15,10 @@ console.log('- config.mediasoup.logTags:', config.mediasoup.logTags);
 /* eslint-enable no-console */
 
 const fs = require('fs');
-const https = require('https');
+const http = require('http');
 const url = require('url');
-const protooServer = require('protoo-server');
+// const protooServer = require('protoo-server');
+const socket = require('socket.io')
 const mediasoup = require('mediasoup');
 const readline = require('readline');
 const colors = require('colors/safe');
@@ -81,7 +82,7 @@ const tls =
 	key  : fs.readFileSync(config.tls.key)
 };
 
-const httpsServer = https.createServer(tls, (req, res) =>
+const httpsServer = http.createServer((req, res) =>
 {
 	res.writeHead(404, 'Not Here');
 	res.end();
@@ -93,77 +94,170 @@ httpsServer.listen(config.serverPort, '0.0.0.0', () =>
 });
 
 // Protoo WebSocket server.
-const webSocketServer = new protooServer.WebSocketServer(httpsServer,
-	{
-		maxReceivedFrameSize     : 960000, // 960 KBytes.
-		maxReceivedMessageSize   : 960000,
-		fragmentOutgoingMessages : true,
-		fragmentationThreshold   : 960000
-	});
+// const webSocketServer = new protooServer.WebSocketServer(httpsServer,
+// 	{
+// 		maxReceivedFrameSize     : 960000, // 960 KBytes.
+// 		maxReceivedMessageSize   : 960000,
+// 		fragmentOutgoingMessages : true,
+// 		fragmentationThreshold   : 960000
+// 	});
+const webSocketServer = socket(httpsServer)
 
-// Handle connections from clients.
-webSocketServer.on('connectionrequest', (info, accept, reject) =>
-{
-	// The client indicates the roomId and peerId in the URL query.
-	const u = url.parse(info.request.url, true);
-	const roomId = u.query['roomId'];
-	const peerName = u.query['peerName'];
+webSocketServer.on('connection', (socket) => {
 
-	if (!roomId || !peerName)
-	{
-		logger.warn('connection request without roomId and/or peerName');
+	socket.on('room', (roomId, peerName) => {
+        socket.join(roomId);
 
-		reject(400, 'Connection request without roomId and/or peerName');
-
-		return;
-	}
-
-	logger.info(
-		'connection request [roomId:"%s", peerName:"%s"]', roomId, peerName);
-
-	let room;
-
-	// If an unknown roomId, create a new Room.
-	if (!rooms.has(roomId))
-	{
-		logger.info('creating a new Room [roomId:"%s"]', roomId);
-
-		try
+        console.log('Client connected.');
+	    // Disconnect listener
+	    socket.on('disconnect', function() {
+	        console.log('Client disconnected.');
+	    });
+	    socket.on('ping', () => {
+			console.log("test")
+			socket.emit('pong')
+		})
+	    socket.on('mediasoup-request',(arg1) => {
+			console.log(arg1)
+		})
+		socket.on('*', (arg) => {
+			console.log("some req", arg)
+		})
+		console.log("connectionrequest")
+		// The client indicates the roomId and peerId in the URL query.
+		const u = url.parse(socket.request.url, true);
+		// const roomId = u.query['roomId'];
+		// const peerName = u.query['peerName'];
+		// console.log(roomId, peerName)
+		if (!roomId || !peerName)
 		{
-			room = new Room(roomId, mediaServer);
+			logger.warn('connection request without roomId and/or peerName');
 
-			global.APP_ROOM = room;
-		}
-		catch (error)
-		{
-			logger.error('error creating a new Room: %s', error);
-
-			reject(error);
+			reject(400, 'Connection request without roomId and/or peerName');
 
 			return;
 		}
 
-		const logStatusTimer = setInterval(() =>
+		logger.info(
+			'connection request [roomId:"%s", peerName:"%s"]', roomId, peerName);
+
+		let room;
+
+		// If an unknown roomId, create a new Room.
+		if (!rooms.has(roomId))
 		{
-			room.logStatus();
-		}, 30000);
+			logger.info('creating a new Room [roomId:"%s"]', roomId);
 
-		rooms.set(roomId, room);
+			try
+			{
+				room = new Room(roomId, mediaServer);
 
-		room.on('close', () =>
+				global.APP_ROOM = room;
+			}
+			catch (error)
+			{
+				logger.error('error creating a new Room: %s', error);
+
+				reject(error);
+
+				return;
+			}
+
+			const logStatusTimer = setInterval(() =>
+			{
+				room.logStatus();
+			}, 30000);
+
+			rooms.set(roomId, room);
+
+			room.on('close', () =>
+			{
+				rooms.delete(roomId);
+				clearInterval(logStatusTimer);
+			});
+		}
+		else
 		{
-			rooms.delete(roomId);
-			clearInterval(logStatusTimer);
-		});
-	}
-	else
-	{
-		room = rooms.get(roomId);
-	}
+			room = rooms.get(roomId);
+		}
 
-	const transport = accept();
+		// const transport = accept();
+		var nsp = socket.in(roomId);
+		nsp.emit('test1');
+		nsp.emit('room-connected');
+		nsp.emit('open');
+		
+		room.handleConnection(peerName, nsp);
 
-	room.handleConnection(peerName, transport);
+    });
+
+    
+
+	// Handle connections from clients.
+	// socket.on('connectionrequest', (info, accept, reject) =>
+	// {	
+	// 	console.log("connectionrequest")
+	// 	// The client indicates the roomId and peerId in the URL query.
+	// 	const u = url.parse(info.request.url, true);
+	// 	const roomId = u.query['roomId'];
+	// 	const peerName = u.query['peerName'];
+
+	// 	if (!roomId || !peerName)
+	// 	{
+	// 		logger.warn('connection request without roomId and/or peerName');
+
+	// 		reject(400, 'Connection request without roomId and/or peerName');
+
+	// 		return;
+	// 	}
+
+	// 	logger.info(
+	// 		'connection request [roomId:"%s", peerName:"%s"]', roomId, peerName);
+
+	// 	let room;
+
+	// 	// If an unknown roomId, create a new Room.
+	// 	if (!rooms.has(roomId))
+	// 	{
+	// 		logger.info('creating a new Room [roomId:"%s"]', roomId);
+
+	// 		try
+	// 		{
+	// 			room = new Room(roomId, mediaServer);
+
+	// 			global.APP_ROOM = room;
+	// 		}
+	// 		catch (error)
+	// 		{
+	// 			logger.error('error creating a new Room: %s', error);
+
+	// 			reject(error);
+
+	// 			return;
+	// 		}
+
+	// 		const logStatusTimer = setInterval(() =>
+	// 		{
+	// 			room.logStatus();
+	// 		}, 30000);
+
+	// 		rooms.set(roomId, room);
+
+	// 		room.on('close', () =>
+	// 		{
+	// 			rooms.delete(roomId);
+	// 			clearInterval(logStatusTimer);
+	// 		});
+	// 	}
+	// 	else
+	// 	{
+	// 		room = rooms.get(roomId);
+	// 	}
+
+	// 	const transport = accept();
+
+	// 	room.handleConnection(peerName, transport);
+	// });
 });
 
 // Listen for keyboard input.

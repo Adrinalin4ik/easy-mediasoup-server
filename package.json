@@ -16,7 +16,8 @@
     "file-stream-rotator": "^0.2.0",
     "mediasoup": "^2.0.5",
     "protoo-server": "^2.0.5",
-    "simple-node-logger": "^0.93.33"
+    "simple-node-logger": "^0.93.33",
+    "socket.io": "^2.1.0"
   },
   "devDependencies": {
     "gulp": "git://github.com/gulpjs/gulp.git#4.0",
