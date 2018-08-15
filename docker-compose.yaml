@@ -10,7 +10,7 @@ services:
     network_mode: host
     shm_size: '1gb'
     environment:
-      - numWorkers=1
+      - numWorkers=2
       - maxBitrate=250000
       - stage=beta
       - serverPort=3444
@@ -25,7 +25,7 @@ services:
     network_mode: host
     shm_size: '1gb'
     environment:
-      - numWorkers=1
+      - numWorkers=2
       - maxBitrate=250000
       - stage=production
       - serverPort=3443

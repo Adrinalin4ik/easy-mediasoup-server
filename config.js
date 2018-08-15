@@ -2,8 +2,8 @@ module.exports =
 {
 	// DEBUG env variable For the NPM debug module.
 	stage:process.env.stage || "beta",
-	serverPort:process.env.serverPort || 3443,
-	debug  : '*INFO* *WARN* *ERROR* *mediasoup-worker*',
+	serverPort: +process.env.serverPort || 3443,
+	debug  : process.env.logs || '*INFO* *WARN* *ERROR* *mediasoup-worker*',
 	// Listening hostname for `gulp live|open`.
 	domain : 'localhost',
 	tls    :
@@ -11,7 +11,7 @@ module.exports =
 		cert : `${__dirname}/certs/mediasoup-demo.localhost.cert.pem`,
 		key  : `${__dirname}/certs/mediasoup-demo.localhost.key.pem`
 	},
-	numWorkers:process.env.numWorkers || 1,
+	numWorkers: +process.env.numWorkers || 1,
 
 	mediasoup :
 	{
@@ -63,6 +63,6 @@ module.exports =
 			// }
 		],
 		// mediasoup per Peer max sending bitrate (in bps).
-		maxBitrate : process.env.maxBitrate || 250000
+		maxBitrate : +process.env.maxBitrate || 250000
 	}
 };

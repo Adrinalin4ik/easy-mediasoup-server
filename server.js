@@ -98,7 +98,9 @@ const webSocketServer = new protooServer.WebSocketServer(httpsServer,
 		maxReceivedFrameSize     : 960000, // 960 KBytes.
 		maxReceivedMessageSize   : 960000,
 		fragmentOutgoingMessages : true,
-		fragmentationThreshold   : 960000
+		fragmentationThreshold   : 960000,
+		keepalive         		 : true,
+		keepaliveInterval 		 : 60000
 	});
 
 // Handle connections from clients.
