@@ -1,0 +1,105 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+   	<meta charset="utf-8">
+   	<title>Mediasoup</title>
+
+   	<link rel="stylesheet" href="//cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+	<script
+	  src="https://code.jquery.com/jquery-3.3.1.slim.js"
+	  integrity="sha256-fNXJFIlca05BIO2Y5zh1xrShK3ME+/lYZ0j+ChxX2DA="
+	  crossorigin="anonymous"></script>
+  </head>
+  <body>
+    Room count: <span><%=rooms.length%></span>
+
+<!-- 	<ul>
+	<%rooms.forEach((r) => { %>
+		<li>
+			<h3><%=r.roomId%><h3>
+			<h3>peers: <%=r.peers.length%></h4>
+			<ul>
+				<%r.peers.forEach((p) => { %>
+					<li>
+						<div>
+							<b>Name</b>: <%=p.name%>
+							<b>Device</b> <%=p.device.name%> <%=p.device.version%>
+							<h4>Producers:</h4>
+							<ul>
+								<% p.producers.forEach(producer => {%>
+									<li>
+									<b>Type</b>: <%=producer.type%>
+									<b>Protocol</b>: <%=producer.ice.protocol%>
+									<b>IP</b>: <%=producer.ice.remoteIP%>:<%=producer.ice.remotePort%>
+									</li>
+								<%})%>
+							</ul>
+					</li><br>
+				<%})%>
+			</ul>
+		</li><br>
+	<% }) %>
+	<ul> -->
+
+	<table id="myTable" class="display">
+	    <thead>
+	        <tr>
+	            <th>Room name</th>
+	            <th>Peers</th>
+	        </tr>
+	    </thead>
+	    <tbody>
+	    <%rooms.forEach((r) => { %>
+	        <tr onclick="show('<%=r.roomId%>')">
+	            <td><%=r.roomId%></td>
+	            <td><%=r.peers.length%></td>
+	        </tr>
+	  	<% }) %>
+	    </tbody>
+	</table>
+
+	<div id="info">
+
+	</div>
+	<script src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+
+	<script>
+	var data = JSON.parse("<%=JSON.stringify(rooms)%>".replace(/&#34;/g,'"'))
+	$(document).ready( function () {
+	    $('#myTable').DataTable();
+	} );
+	function show(roomId) {
+		console.log(roomId)
+		room = data.find(x => x.roomId == roomId)
+		$('#info').show();
+
+		let info = "<h3>Peers</h3>"
+			room.peers.forEach((p) => {
+				info += `<li><br>
+					<b>Name</b>: ${p.name} <br>
+					<b>Device</b> ${p.device.name} ${p.device.version}<br>
+					<h4>Producers:</h4>
+					<ul>`
+						p.producers.forEach(producer => {
+							infp += `<li>
+							<b>Type</b>: ${producer.type}
+							<b>Protocol</b>: ${producer.ice.protocol}
+							<b>IP</b>: ${producer.ice.remoteIP}:${producer.ice.remotePort}
+							</li>`
+						})
+					info+= `</ul>
+				</li><br>`
+			})
+		$('#info').html(info)
+	}
+	</script>
+  </body>
+</html>
+
+
+
+
+
+
+
+

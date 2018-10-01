@@ -14,16 +14,39 @@ console.log('- config.mediasoup.logLevel:', config.mediasoup.logLevel);
 console.log('- config.mediasoup.logTags:', config.mediasoup.logTags);
 /* eslint-enable no-console */
 
+const es6Renderer = require('express-es6-template-engine');
 const fs = require('fs');
 const https = require('https');
 const url = require('url');
 const protooServer = require('protoo-server');
 const mediasoup = require('mediasoup');
 const readline = require('readline');
+var path = require('path');
 const colors = require('colors/safe');
 const repl = require('repl');
 const Logger = require('./lib/Logger');
 const Room = require('./lib/Room');
+var express = require('express');
+const basicAuth = require('express-basic-auth')
+
+var realm = require('express-http-auth').realm('Medisaoup');
+
+var checkUser = function(req, res, next) {
+  if (req.username == config.basicAuth.username && req.password == config.basicAuth.password) {
+    next();
+  } else {
+    res.send(403);
+  }
+}
+
+var auth = [realm, checkUser];
+
+const app = express();
+
+
+app.set('views', path.join(__dirname, 'views'));
+// app.engine('html', es6Renderer);
+app.set('view engine', 'ejs')
 
 const logger = new Logger();
 
@@ -81,17 +104,58 @@ const tls =
 	key  : fs.readFileSync(config.tls.key)
 };
 
-const httpsServer = https.createServer(tls, (req, res) =>
-{
-	res.writeHead(404, 'Not Here');
-	res.end();
-});
 
-httpsServer.listen(config.serverPort, '0.0.0.0', () =>
+const httpsServer = https.createServer(tls, app);
+
+httpsServer.listen(config.serverPort, 'localhost', () =>
 {
 	logger.info('protoo WebSocket server running');
 });
 
+
+app.get('/stats', auth, function (req, res) {
+  const params = [];
+
+  let data = Array.from(rooms, ([k,v]) => v);
+
+  params['rooms'] = data.map(x => {
+  		let peers = Array.from(x._mediaRoom._peers, ([k,v]) => v);
+	  return {
+	  	roomId: x._roomId,
+	  	peers: peers.map(p => {
+	  		let producers = Array.from(p._producers, ([k,v]) => v);
+	  		// console.log(producers)
+	  		return  {
+	  			name:p._internal.peerName,
+	  			device:{
+	  				name:p._appData.device.name,
+	  				version:p._appData.device.version
+	  			},
+	  			producers: producers.map(producer => {
+	  				console.log(producer._data.transport)
+	  				return {
+	  					type:producer._appData.source,
+	  					ice: {
+	  						localIP:producer._data.transport.iceSelectedTuple.localIP,
+	  						localPort: producer._data.transport.iceSelectedTuple.localPort,
+	  						protocol: producer._data.transport.iceSelectedTuple.protocol,
+	  						remoteIP: producer._data.transport.iceSelectedTuple.remoteIP,
+	  						remotePort: producer._data.transport.iceSelectedTuple.remotePort,
+	  						state: producer._data.transport.iceState
+	  					}
+	  				}
+	  			})
+	  		}
+	  	})
+	  }
+  })
+
+  // params.rooms.forEach(x => {
+	 //  console.log(Array.from(x._mediaRoom._peers, ([k,v]) => v)[0]._appData.device)
+  // })
+  res.render('stats', params);
+})
+//
 // Protoo WebSocket server.
 const webSocketServer = new protooServer.WebSocketServer(httpsServer,
 	{

@@ -14,7 +14,7 @@ services:
       - maxBitrate=250000
       - stage=beta
       - serverPort=3444
-      
+
   production-mediasoup-media-server:
     build: ./
     expose:

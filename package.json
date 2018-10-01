@@ -3,8 +3,7 @@
   "version": "2.0.0",
   "private": true,
   "description": "mediasoup server",
-  "author": "Iñaki Baz Castillo <ibc@aliax.net>",
-  "license": "All Rights Reserved",
+  "author": "Alexey Panfilkin",
   "main": "lib/index.js",
   "scripts": {
     "start": "node server.js"
@@ -12,9 +11,15 @@
   "dependencies": {
     "colors": "^1.1.2",
     "debug": "^3.1.0",
-    "express": "^4.16.2",
+    "ejs": "^2.6.1",
+    "express": "^4.16.3",
+    "express-basic-auth": "^1.1.5",
+    "express-es6-template-engine": "^2.1.5",
+    "express-http-auth": "^0.1.0",
     "file-stream-rotator": "^0.2.0",
-    "mediasoup": "^2.2.2",
+    "iplocation": "^5.0.1",
+    "mediasoup": "^2.2.3",
+    "path": "^0.12.7",
     "protoo-server": "^3.0.0",
     "simple-node-logger": "^0.93.33"
   },

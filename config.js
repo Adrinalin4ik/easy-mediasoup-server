@@ -6,6 +6,10 @@ module.exports =
 	debug  : process.env.logs || '*INFO* *WARN* *ERROR* *mediasoup-worker*',
 	// Listening hostname for `gulp live|open`.
 	domain : 'localhost',
+	basicAuth: {
+		username:process.env.basicAuthUsername || "Oblakogroup",
+		password:process.env.basicAuthPassword || "Ob1ako",
+	},
 	tls    :
 	{
 		cert : `${__dirname}/certs/mediasoup-demo.localhost.cert.pem`,
