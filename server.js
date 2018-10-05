@@ -118,11 +118,13 @@ app.get('/stats', auth, function (req, res) {
 
   let data = Array.from(rooms, ([k,v]) => v);
 
+  let total_peer_count = 0;
   params['rooms'] = data.map(x => {
-  		let peers = Array.from(x._mediaRoom._peers, ([k,v]) => v);
+  	  let peers = x._mediaRoom.peers
 	  return {
 	  	roomId: x._roomId,
 	  	peers: peers.map(p => {
+	  		total_peer_count++;
 	  		let producers = Array.from(p._producers, ([k,v]) => v);
 	  		// console.log(producers)
 	  		return  {
@@ -132,7 +134,11 @@ app.get('/stats', auth, function (req, res) {
 	  				version:p._appData.device.version
 	  			},
 	  			producers: producers.map(producer => {
-	  				console.log(producer._data.transport)
+	  				if (!producer._data.transport.iceSelectedTuple){
+		  				return  {
+		  					type:producer._appData.source,
+		  				}
+		  			}
 	  				return {
 	  					type:producer._appData.source,
 	  					ice: {
@@ -150,9 +156,8 @@ app.get('/stats', auth, function (req, res) {
 	  }
   })
 
-  // params.rooms.forEach(x => {
-	 //  console.log(Array.from(x._mediaRoom._peers, ([k,v]) => v)[0]._appData.device)
-  // })
+  params['total_peer_count'] = total_peer_count;
+
   res.render('stats', params);
 })
 //
@@ -209,10 +214,10 @@ webSocketServer.on('connectionrequest', (info, accept, reject) =>
 			return;
 		}
 
-		const logStatusTimer = setInterval(() =>
-		{
-			room.logStatus();
-		}, 30000);
+		// const logStatusTimer = setInterval(() =>
+		// {
+		// 	room.logStatus();
+		// }, 30000);
 
 		rooms.set(roomId, room);
 
