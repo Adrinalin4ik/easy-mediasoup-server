@@ -4,71 +4,99 @@
    	<meta charset="utf-8">
    	<title>Mediasoup</title>
 
-   	<link rel="stylesheet" href="//cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
-	<script
-	  src="https://code.jquery.com/jquery-3.3.1.slim.js"
-	  integrity="sha256-fNXJFIlca05BIO2Y5zh1xrShK3ME+/lYZ0j+ChxX2DA="
-	  crossorigin="anonymous"></script>
+   	<link rel="stylesheet" href="css/materialize.min.css">
+	<script src="js/jquery.min.js"></script>
+
+	<script src="js/chartjs.min.js"></script>
   </head>
   <body>
-    Room count: <span><%=rooms.length%></span><br>
+  	Room count: <span><%=rooms.length%></span><br>
     Total peer count <span><%=total_peer_count%></span>
-
-<!-- 	<ul>
-	<%rooms.forEach((r) => { %>
-		<li>
-			<h3><%=r.roomId%><h3>
-			<h3>peers: <%=r.peers.length%></h4>
-			<ul>
-				<%r.peers.forEach((p) => { %>
-					<li>
-						<div>
-							<b>Name</b>: <%=p.name%>
-							<b>Device</b> <%=p.device.name%> <%=p.device.version%>
-							<h4>Producers:</h4>
-							<ul>
-								<% p.producers.forEach(producer => {%>
-									<li>
-									<b>Type</b>: <%=producer.type%>
-									<b>Protocol</b>: <%=producer.ice.protocol%>
-									<b>IP</b>: <%=producer.ice.remoteIP%>:<%=producer.ice.remotePort%>
-									</li>
-								<%})%>
-							</ul>
-					</li><br>
-				<%})%>
-			</ul>
-		</li><br>
-	<% }) %>
-	<ul> -->
-
-	<table id="myTable" class="display">
-	    <thead>
-	        <tr>
-	            <th>Room name</th>
-	            <th>Peers</th>
-	        </tr>
-	    </thead>
-	    <tbody>
-	    <%rooms.forEach((r) => { %>
-	        <tr onclick="show('<%=r.roomId%>')">
-	            <td><%=r.roomId%></td>
-	            <td><%=r.peers.length%></td>
-	        </tr>
-	  	<% }) %>
-	    </tbody>
-	</table>
-
-	<div id="info">
-
+  	<div class="row">
+	  <div class="col s6">
+	  	<canvas id="peerTime" height="200"></canvas>
+	  </div>
+	  <div class="col s6">
+	  	<canvas id="peerDevice" height="200"></canvas>
+	  </div>
 	</div>
+
+	<div class="row">
+		<table id="myTable" class="col s6">
+		    <thead>
+		        <tr>
+		            <th>Room name</th>
+		            <th>Peers</th>
+		        </tr>
+		    </thead>
+		    <tbody>
+		    <%rooms.forEach((r) => { %>
+		        <tr onclick="show('<%=r.roomId%>')">
+		            <td><%=r.roomId%></td>
+		            <td><%=r.peers.length%></td>
+		        </tr>
+		  	<% }) %>
+		    </tbody>
+		</table>
+		<div id="info" class="col s6"></div>
+	</div>
+
+	<!-- Compiled and minified JavaScript -->
+    <script src="js/materialize.min.js"></script>
+
+	<script>
+		var stats = JSON.parse("<%=JSON.stringify(stats)%>".replace(/&#34;/g,'"'))
+		var ctx = document.getElementById("peerTime").getContext('2d');
+		var myChart = new Chart(ctx, {
+		    type: 'line',
+		    data: {
+		        labels: stats.peerTimeData.map(x=>x.x),
+		        datasets: [{
+		            label: 'Peer count',
+		            data: stats.peerTimeData.map(x=>x.y),
+		            backgroundColor: [
+		                'rgba(255, 99, 132, 0.2)',
+		            ],
+		            borderColor: [
+		                'rgba(255,99,132,1)',
+		            ],
+		            borderWidth: 1
+		        }]
+		    },
+		    options: {
+		        scales: {
+		            yAxes: [{
+		                ticks: {
+		                    beginAtZero:true
+		                }
+		            }]
+		        }
+		    }
+		});
+
+		var ctx = document.getElementById("peerDevice").getContext('2d');
+
+		var myDoughnutChart = new Chart(ctx, {
+		    type: 'bar',
+		    data: {
+			    labels: Object.keys(stats.peerDeviceData) || [],
+		    	datasets: [{
+			        data: Object.values(stats.peerDeviceData).map(x => x.length) || [],
+			        backgroundColor: [
+		                'rgba(255, 99, 132, 0.2)',
+		            ],
+		            borderColor: [
+		                'rgba(255,99,132,1)',
+		            ],
+			        borderWidth : 1
+			    }]
+			}
+		});
+	</script>
 	<script src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
 
 	<script>
 	var data = JSON.parse("<%=JSON.stringify(rooms)%>".replace(/&#34;/g,'"'))
-	$(document).ready( function () {
-	    $('#myTable').DataTable();
-	} );
 	function show(roomId) {
 		console.log(roomId)
 		room = data.find(x => x.roomId == roomId)
@@ -77,18 +105,21 @@
 		let info = "<h3>Peers</h3>"
 			room.peers.forEach((p) => {
 				info += `<li><br>
-					<b>Name</b>: ${p.name} <br>
-					<b>Device</b> ${p.device.name} ${p.device.version}<br>
-					<h4>Producers:</h4>
-					<ul>`
-						p.producers.forEach(producer => {
-							info += `<li>
-							<b>Type</b>: ${producer.type}
-							<b>Protocol</b>: ${producer.ice.protocol}
-							<b>IP</b>: ${producer.ice.remoteIP}:${producer.ice.remotePort}
-							</li>`
-						})
-					info+= `</ul>
+					<div class="card-panel teal">
+						<b>Name</b>: ${p.name} <br>
+						<b>Device</b> ${p.device.name} ${p.device.version}<br>
+						<h6>Producers:</h6>
+						<ul>`
+							p.producers.forEach(producer => {
+								info += `<li>
+								<b>Type</b>: ${producer.type}
+								<b>Protocol</b>: ${producer.ice.protocol}
+								<b>IP</b>: ${producer.ice.remoteIP}:${producer.ice.remotePort}
+								<b>City</b>: ${producer.ice.geoInfo.city}
+								</li>`
+							})
+						info+= `</ul>
+					</div>
 				</li><br>`
 			})
 		$('#info').html(info)

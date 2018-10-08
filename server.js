@@ -29,6 +29,10 @@ const Room = require('./lib/Room');
 var express = require('express');
 const basicAuth = require('express-basic-auth')
 
+const Stats = require('./lib/Stats')
+
+
+
 var realm = require('express-http-auth').realm('Medisaoup');
 
 var checkUser = function(req, res, next) {
@@ -43,6 +47,7 @@ var auth = [realm, checkUser];
 
 const app = express();
 
+app.use(express.static('public'));
 
 app.set('views', path.join(__dirname, 'views'));
 // app.engine('html', es6Renderer);
@@ -52,6 +57,8 @@ const logger = new Logger();
 
 // Map of Room instances indexed by roomId.
 const rooms = new Map();
+
+const stats = new Stats(rooms);
 
 // mediasoup server.
 const mediaServer = mediasoup.Server(
@@ -116,48 +123,12 @@ httpsServer.listen(config.serverPort, 'localhost', () =>
 app.get('/stats', auth, function (req, res) {
   const params = [];
 
-  let data = Array.from(rooms, ([k,v]) => v);
 
   let total_peer_count = 0;
-  params['rooms'] = data.map(x => {
-  	  let peers = x._mediaRoom.peers
-	  return {
-	  	roomId: x._roomId,
-	  	peers: peers.map(p => {
-	  		total_peer_count++;
-	  		let producers = Array.from(p._producers, ([k,v]) => v);
-	  		// console.log(producers)
-	  		return  {
-	  			name:p._internal.peerName,
-	  			device:{
-	  				name:p._appData.device.name,
-	  				version:p._appData.device.version
-	  			},
-	  			producers: producers.map(producer => {
-	  				if (!producer._data.transport.iceSelectedTuple){
-		  				return  {
-		  					type:producer._appData.source,
-		  				}
-		  			}
-	  				return {
-	  					type:producer._appData.source,
-	  					ice: {
-	  						localIP:producer._data.transport.iceSelectedTuple.localIP,
-	  						localPort: producer._data.transport.iceSelectedTuple.localPort,
-	  						protocol: producer._data.transport.iceSelectedTuple.protocol,
-	  						remoteIP: producer._data.transport.iceSelectedTuple.remoteIP,
-	  						remotePort: producer._data.transport.iceSelectedTuple.remotePort,
-	  						state: producer._data.transport.iceState
-	  					}
-	  				}
-	  			})
-	  		}
-	  	})
-	  }
-  })
+  params['rooms'] = stats.getRoomsData(rooms)
 
   params['total_peer_count'] = total_peer_count;
-
+  params['stats'] = stats;
   res.render('stats', params);
 })
 //
@@ -224,7 +195,7 @@ webSocketServer.on('connectionrequest', (info, accept, reject) =>
 		room.on('close', () =>
 		{
 			rooms.delete(roomId);
-			clearInterval(logStatusTimer);
+			// clearInterval(logStatusTimer);
 		});
 	}
 	else
