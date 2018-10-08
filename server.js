@@ -121,15 +121,19 @@ httpsServer.listen(config.serverPort, 'localhost', () =>
 
 
 app.get('/stats', auth, function (req, res) {
-  const params = [];
+	try {
+	  const params = [];
 
 
-  let total_peer_count = 0;
-  params['rooms'] = stats.getRoomsData(rooms)
+	  let total_peer_count = 0;
+	  params['rooms'] = stats.getRoomsData(rooms)
 
-  params['total_peer_count'] = total_peer_count;
-  params['stats'] = stats;
-  res.render('stats', params);
+	  params['total_peer_count'] = total_peer_count;
+	  params['stats'] = stats;
+	  res.render('stats', params);
+	} catch (err) {
+		console.error(err)
+	}
 })
 //
 // Protoo WebSocket server.
