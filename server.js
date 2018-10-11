@@ -119,6 +119,23 @@ httpsServer.listen(config.serverPort, 'localhost', () =>
 	logger.info('protoo WebSocket server running');
 });
 
+app.get('/', function (req, res) {
+	res.render("index");
+})
+
+app.post('/reload/room/:id', function (req, res) {
+	try {
+	let params = req.params;
+	  console.log(params)
+	  let room = rooms.get(params.id);
+	  // room._mediaRoom.close()
+	  // room._protooRoom.close()
+	  // rooms.delete(params.id);
+	  // room.close()
+	} catch (err) {
+		console.error(err)
+	}
+})
 
 app.get('/stats', auth, function (req, res) {
 	try {
