@@ -1,35 +1,32 @@
 module.exports =
 {
 	// DEBUG env variable For the NPM debug module.
-	stage:process.env.stage || "beta",
+	stage: process.env.stage || "beta",
 	serverPort: +process.env.serverPort || 3443,
-	debug  : process.env.logs || '*INFO* *WARN* *ERROR* *mediasoup-worker*',
+	debug: process.env.logs || '*INFO* *WARN* *ERROR* *mediasoup-worker*',
 	// Listening hostname for `gulp live|open`.
-	domain : 'localhost',
+	domain: 'localhost',
 	basicAuth: {
-		username:process.env.basicAuthUsername || "Oblakogroup",
-		password:process.env.basicAuthPassword || "Ob1ako",
+		username:process.env.basicAuthUsername || "admin",
+		password:process.env.basicAuthPassword || "password",
 	},
-	tls    :
-	{
-		cert : `${__dirname}/certs/mediasoup-demo.localhost.cert.pem`,
-		key  : `${__dirname}/certs/mediasoup-demo.localhost.key.pem`
+	tls: {
+		cert: `${__dirname}/certs/mediasoup-demo.localhost.cert.pem`,
+		key : `${__dirname}/certs/mediasoup-demo.localhost.key.pem`
 	},
 	numWorkers: +process.env.numWorkers || 1,
 
-	mediasoup :
-	{
+	mediasoup: {
 		// mediasoup Server settings.
-		logLevel : 'warn',
-		logTags  :
-		[
+		logLevel: 'warn',
+		logTags: [
 			'info',
-			'ice',
+			'ice' ,
 			'dlts',
-			'rtp',
+			'rtp' ,
 			'srtp',
 			'rtcp',
-			'rbe',
+			'rbe' ,
 			'rtx'
 		],
 		rtcIPv4          : true,
@@ -39,15 +36,13 @@ module.exports =
 		rtcMinPort       : 40000,
 		rtcMaxPort       : 49999,
 		// mediasoup Room codecs.
-		mediaCodecs      :
-		[
+		mediaCodecs:[
 			{
 				kind       : 'audio',
 				name       : 'opus',
 				clockRate  : 48000,
 				channels   : 2,
-				parameters :
-				{
+				parameters : {
 					useinbandfec : 1
 				}
 			},
@@ -67,6 +62,6 @@ module.exports =
 			// }
 		],
 		// mediasoup per Peer max sending bitrate (in bps).
-		maxBitrate : +process.env.maxBitrate || 250000
+		maxBitrate: +process.env.maxBitrate || 250000
 	}
 };
