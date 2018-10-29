@@ -3,7 +3,7 @@ module.exports =
 	// DEBUG env variable For the NPM debug module.
 	stage: process.env.stage || "beta",
 	serverPort: +process.env.serverPort || 3443,
-	debug: process.env.logs || '*INFO* *WARN* *ERROR* *mediasoup-worker*',
+	debug: process.env.logLevel || '*INFO* *WARN* *ERROR* *mediasoup-worker*',
 	// Listening hostname for `gulp live|open`.
 	domain: 'localhost',
 	basicAuth: {
@@ -18,7 +18,7 @@ module.exports =
 
 	mediasoup: {
 		// mediasoup Server settings.
-		logLevel: 'warn',
+		logLevel: 'error',
 		logTags: [
 			'info',
 			'ice' ,
