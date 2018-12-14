@@ -18,7 +18,7 @@ module.exports =
 
 	mediasoup: {
 		// mediasoup Server settings.
-		logLevel: 'error',
+		logLevel: 'debug',
 		logTags: [
 			'info',
 			'ice' ,
