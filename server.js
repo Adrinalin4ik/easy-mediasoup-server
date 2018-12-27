@@ -21,19 +21,19 @@ const url = require('url');
 const protooServer = require('protoo-server');
 const mediasoup = require('mediasoup');
 const readline = require('readline');
-var path = require('path');
+const path = require('path');
 const colors = require('colors/safe');
 const repl = require('repl');
 const Logger = require('./lib/Logger');
 const Room = require('./lib/Room');
-var express = require('express');
+const express = require('express');
 const basicAuth = require('express-basic-auth')
-
+const cors = require('cors')
 const Stats = require('./lib/Stats')
 
 
 
-var realm = require('express-http-auth').realm('Medisaoup');
+var realm = require('express-http-auth').realm('Mediasoup');
 
 var checkUser = function(req, res, next) {
   if (req.username == config.basicAuth.username && req.password == config.basicAuth.password) {
@@ -46,6 +46,7 @@ var checkUser = function(req, res, next) {
 var auth = [realm, checkUser];
 
 const app = express();
+
 
 app.use(express.static('public'));
 
@@ -114,7 +115,7 @@ const tls =
 
 const httpsServer = https.createServer(tls, app);
 
-httpsServer.listen(config.serverPort, 'localhost', () =>
+httpsServer.listen(config.serverPort, '0.0.0.0', () =>
 {
 	logger.info('protoo WebSocket server running');
 });
@@ -152,6 +153,16 @@ app.get('/stats', auth, function (req, res) {
 		console.error(err)
 	}
 })
+
+app.get('/download_test', cors({origin:"*"}), function (req, res) {
+	const size = 200*1024//kb
+	res.send(new Array(size*1024 + 1).join('a'))
+})
+
+app.post('/upload_test', cors({origin:"*"}), function (req, res) {
+	res.send("OK")
+})
+
 //
 // Protoo WebSocket server.
 const webSocketServer = new protooServer.WebSocketServer(httpsServer,
@@ -213,9 +224,40 @@ webSocketServer.on('connectionrequest', (info, accept, reject) =>
 
 		rooms.set(roomId, room);
 
-		room.on('close', () =>
-		{
+		room.on('close', (room) =>
+		{	
+			// console.log("Room", room._mediaRoom.id)
+			// const real_room_id = room._mediaRoom.id
+			// console.log(mediaServer._workers)
+			// mediaServer._workers.forEach((w, worker_index) => {
+			// 	console.log(w)
+			// 	w._rooms.forEach(r => {
+			// 		if (r.id == real_room_id) {
+			// 			console.warn("FOUND", r, w, w._rooms.size)
+			// 			if (w._rooms.size == 1) {
+			// 				room.closeConnections();
+			// 				console.log("before romove", mediaServer)
+			// 				console.log("After romove", mediaServer)
+			// 				setTimeout(function() {
+			// 					console.log("w status", w._child.killed)
+			// 					// w.close()
+			// 					w._child.kill('SIGHUP');
+			// 					setTimeout(function() {
+			// 						if (!w._child){
+			// 							// mediaServer.createWorker(5);
+			// 							console.log("Woker created")
+			// 						}
+			// 					},10000)
+			// 				}, 3000)
+
+			// 				console.log("Acter create worker", mediaServer)
+			// 			}
+			// 		}
+			// 	})
+			// })
+
 			rooms.delete(roomId);
+			// console.log(mediaServer)
 			// clearInterval(logStatusTimer);
 		});
 	}
@@ -229,3 +271,11 @@ webSocketServer.on('connectionrequest', (info, accept, reject) =>
 	room.handleConnection(peerName, transport);
 });
 
+/**
+ * Generate blob with constatnt size
+ * @param  {number} size Size in kilobytes
+ * @return {blob}
+ */
+const generate_payload = async (size) => {
+    return new Blob([new Array(size*1024 + 1).join('a')]);
+}
