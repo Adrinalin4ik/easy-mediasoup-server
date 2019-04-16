@@ -16,7 +16,7 @@ console.log('- config.mediasoup.logTags:', config.mediasoup.logTags);
 
 const es6Renderer = require('express-es6-template-engine');
 const fs = require('fs');
-const https = require('https');
+const http = require('http');
 const url = require('url');
 const protooServer = require('protoo-server');
 const mediasoup = require('mediasoup');
@@ -113,7 +113,7 @@ const tls =
 };
 
 
-const httpsServer = https.createServer(tls, app);
+const httpsServer = http.createServer(app);
 
 httpsServer.listen(config.serverPort, '0.0.0.0', () =>
 {
