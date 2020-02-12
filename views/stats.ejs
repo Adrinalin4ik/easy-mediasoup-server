@@ -23,7 +23,21 @@
 		  </div>
 		  <div class="col s6">
 		  		<canvas id="processResourcesUsage" height="200" onmousedown="resetGraph(event)"></canvas>
-		  </div>
+			</div>
+		  <div class="col s6">
+		  	<table id="workersTable">
+					<thead>
+						<tr>
+								<th>Worker PID</th>
+								<th>CPU</th>
+								<th>MEM</th>
+								<th>Room count</th>
+								<th>Peer count</th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
+			</div>
 		   <div class="col s12">
 		  		<canvas id="peerCity" height="200"></canvas>
 		  </div>
@@ -35,6 +49,7 @@
 			        <tr>
 			            <th>Room name</th>
 			            <th>Peers</th>
+			            <th>Woker PID</th>
 			        </tr>
 			    </thead>
 			    <tbody>
@@ -42,6 +57,7 @@
 			        <tr>
 			            <td onclick="show('<%=r.roomId%>')" ><%=r.roomId%></td>
 			            <td><%=r.peers.length%></td>
+			            <td><%=r.worker.pid%></td>
 			            <td onclick="reloadRoom('<%=r.roomId%>')">Reload</td>
 			        </tr>
 			  	<% }) %>
@@ -55,12 +71,30 @@
     <script src="js/materialize.min.js"></script>
 
 	<script>
+
+		
 		function reloadRoom(roomId) {
 			$.post('/reload/room/'+roomId)
+			// location.reload()
 		}
 
 		var timeFormat = 'Y-m-dTH:M:Sz';
 		var stats = JSON.parse("<%=JSON.stringify(stats)%>".replace(/&#34;/g,'"'))
+
+		const workerLastStats = stats.processResourcesUsage[stats.processResourcesUsage.length - 1].workers
+		console.log(workerLastStats)
+		for (const worker of workerLastStats) {
+			$('#workersTable > tbody').append(`
+					<tr>
+						<td>${worker.pid}</td>
+						<td>${worker.cpu}</td>
+						<td>${Math.round(worker.mem/1024/1024)}mb (${worker.mem_percent}%)</td>
+						<td>${worker.room_count}</td>
+						<td>${worker.peer_count}</td>
+					</tr>
+			`)
+		}
+
 
 		var ctx = document.getElementById("peerTime").getContext('2d');
 		var peerTimeChart = new Chart(ctx, {

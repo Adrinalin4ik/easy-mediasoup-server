@@ -59,7 +59,6 @@ const logger = new Logger();
 // Map of Room instances indexed by roomId.
 const rooms = new Map();
 
-const stats = new Stats(rooms);
 
 // mediasoup server.
 const mediaServer = mediasoup.Server(
@@ -74,8 +73,10 @@ const mediaServer = mediasoup.Server(
 		rtcMinPort       : config.mediasoup.rtcMinPort,
 		rtcMaxPort       : config.mediasoup.rtcMaxPort
 	});
-
+	
 global.SERVER = mediaServer;
+
+const stats = new Stats(rooms, mediaServer);
 
 mediaServer.on('newroom', (room) =>
 {
@@ -117,7 +118,7 @@ const httpsServer = http.createServer(app);
 
 httpsServer.listen(config.serverPort, '0.0.0.0', () =>
 {
-	logger.info('protoo WebSocket server running');
+	logger.info(`protoo WebSocket server running on ${config.serverPort}`);
 });
 
 app.get('/', function (req, res) {
@@ -126,13 +127,13 @@ app.get('/', function (req, res) {
 
 app.post('/reload/room/:id', function (req, res) {
 	try {
-	let params = req.params;
+		let params = req.params;
 	  console.log(params)
 	  let room = rooms.get(params.id);
-	  // room._mediaRoom.close()
-	  // room._protooRoom.close()
-	  // rooms.delete(params.id);
-	  // room.close()
+	  room._mediaRoom.close()
+	  room._protooRoom.close()
+	  rooms.delete(params.id);
+	  room.close()
 	} catch (err) {
 		console.error(err)
 	}
@@ -207,6 +208,7 @@ webSocketServer.on('connectionrequest', (info, accept, reject) =>
 			room = new Room(roomId, mediaServer);
 
 			global.APP_ROOM = room;
+			// console.log(room._mediaRoom)
 		}
 		catch (error)
 		{
