@@ -71,7 +71,7 @@
 			    <%rooms.forEach((r) => { %>
 			        <tr>
 			            <td onclick="show('<%=r.roomId%>')" ><%=r.roomId%></td>
-			            <td><%=r.worker.pid%></td>
+			            <td><%=r.worker ? r.worker.pid : "not assigned"%></td>
 			            <td><%=r.peers.length%></td>
 			            <td onclick="reloadRoom('<%=r.roomId%>')">Reload</td>
 			        </tr>
