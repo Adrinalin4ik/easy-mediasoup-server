@@ -30,7 +30,7 @@ const express = require('express');
 const basicAuth = require('express-basic-auth')
 const cors = require('cors')
 const Stats = require('./lib/Stats')
-
+const pidusage = require('pidusage')
 
 
 var realm = require('express-http-auth').realm('Mediasoup');
@@ -75,6 +75,64 @@ const mediaServer = mediasoup.Server(
 	});
 	
 global.SERVER = mediaServer;
+
+mediaServer._workers.forEach((w) => {
+	w.on('@close', () => {
+		console.error("WORKER HAS BEEN CLOSED")
+		// try {
+		// 	console.log(mediaServer._workers)
+		// 	Array.from(mediaServer._workers).forEach((w) => {
+		// 		Array.from(w._rooms).forEach(r => {
+		// 			const room = rooms.find(x => r.id == x._mediaRoom.id)
+		// 			console.log(room)
+		// 			room._mediaRoom.close()
+		// 			room._protooRoom.close()
+		// 			rooms.delete(params.id);
+		// 			room.close()
+		// 		})
+		// 	})
+		// } catch (ex) {
+		// 	console.error(ex)
+		// }
+	})
+})
+
+let currentlessLoadedWorkerIndex = 0;
+
+const setWorkerIndex = async () => {
+	const worker = await findLessLoadedWorker();
+	const maxIndex = mediaServer._workers.size;
+	let result = worker.index - 1;
+	if (result < 0) result = maxIndex - 1;
+	currentlessLoadedWorkerIndex = result;
+}
+
+const findLessLoadedWorker = async () => {
+	const workerLoadingsPromises = [];
+	Array.from(mediaServer._workers).forEach((w, index) => {
+		workerLoadingsPromises.push(getWorkerLoading(w, index))
+	})
+	const workerLoadings = await Promise.all(workerLoadingsPromises)
+	const lessLoaded = workerLoadings.sort((x,y) => x.cpu - y.cpu)[0]
+
+	return lessLoaded;
+}
+
+const getWorkerLoading = async (worker, index) => {
+	const stats = await pidusage(worker._child.pid);
+	return{
+		index,
+		// worker,
+		pid: worker._child.pid,
+		cpu: stats.cpu
+	}
+}
+
+setWorkerIndex();
+setInterval(async() => {
+	await setWorkerIndex();
+}, 30000)
+
 
 const stats = new Stats(rooms, mediaServer);
 
@@ -202,6 +260,8 @@ webSocketServer.on('connectionrequest', (info, accept, reject) =>
 	if (!rooms.has(roomId))
 	{
 		logger.info('creating a new Room [roomId:"%s"]', roomId);
+		mediaServer._latestWorkerIdx = currentlessLoadedWorkerIndex;
+		console.log("Roome create on worker", currentlessLoadedWorkerIndex)
 
 		try
 		{

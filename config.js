@@ -14,7 +14,7 @@ module.exports =
 		cert: `${__dirname}/certs/mediasoup-demo.localhost.cert.pem`,
 		key : `${__dirname}/certs/mediasoup-demo.localhost.key.pem`
 	},
-	numWorkers: +process.env.numWorkers || 1,
+	numWorkers: +process.env.numWorkers || 4,
 
 	send_active_speakers_time_interval: +process.env.send_active_speakers_time_interval || 2000,
 	active_speaker_db_level: +process.env.active_speaker_db_level || -35,
