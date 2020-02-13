@@ -128,10 +128,10 @@ const getWorkerLoading = async (worker, index) => {
 	}
 }
 
-setWorkerIndex();
-setInterval(async() => {
-	await setWorkerIndex();
-}, 30000)
+// setWorkerIndex();
+// setInterval(async() => {
+// 	await setWorkerIndex();
+// }, 30000)
 
 
 const stats = new Stats(rooms, mediaServer);
@@ -235,7 +235,7 @@ const webSocketServer = new protooServer.WebSocketServer(httpsServer,
 	});
 
 // Handle connections from clients.
-webSocketServer.on('connectionrequest', (info, accept, reject) =>
+webSocketServer.on('connectionrequest', async (info, accept, reject) =>
 {
 	// The client indicates the roomId and peerId in the URL query.
 	const u = url.parse(info.request.url, true);
@@ -260,8 +260,9 @@ webSocketServer.on('connectionrequest', (info, accept, reject) =>
 	if (!rooms.has(roomId))
 	{
 		logger.info('creating a new Room [roomId:"%s"]', roomId);
+		setWorkerIndex()
 		mediaServer._latestWorkerIdx = currentlessLoadedWorkerIndex;
-		console.log("Roome create on worker", currentlessLoadedWorkerIndex)
+		console.log("Room created on worker", currentlessLoadedWorkerIndex)
 
 		try
 		{
