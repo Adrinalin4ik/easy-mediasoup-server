@@ -2,8 +2,8 @@
 <html>
   <head>
    	<meta charset="utf-8">
+		 <meta name="viewport" content="width=device-width, initial-scale=1">
    	<title>Mediasoup</title>
-
    	<link rel="stylesheet" href="css/materialize.min.css">
 	<script src="js/jquery.min.js"></script>
 
@@ -15,25 +15,25 @@
 	  	Room count: <span><%=rooms.length%></span><br>
 	    Total peer count <span><%=stats._peerCount%></span>
 	  	<div class="row">
-		  <div class="col s6">
+		  <div class="col s12 m6">
 				<h6>Peers</h6>
 		  	<canvas id="peerTime" height="200" onmousedown="resetGraph(event)"></canvas>
 		  </div>
-		  <div class="col s6">
+		  <div class="col s12 m6">
 				<h6>Devices</h6>
 		  	<canvas id="peerDevice" height="200"></canvas>
 		  </div>
-		  <div class="col s6">
+		  <div class="col s12 m6">
 				<h6>Main process stats</h6>
 		  	<canvas id="processResourcesUsage" height="200" onmousedown="resetGraph(event)"></canvas>
 			</div>
-			<div class="col s6">
+			<div class="col s12 m6">
 				<h6>Workers CPU</h6>
 				<canvas id="processWorkersCPUUsage" height="200" onmousedown="resetGraph(event)"></canvas>
 			</div>
-			<div class="col s6">
+			<div class="col s12 m6">
 				<h6>Workers stats</h6>
-		  	<table id="workersTable">
+		  	<table id="workersTable" class="responsive-table">
 					<thead>
 						<tr>
 								<th>Worker PID</th>
@@ -41,25 +41,27 @@
 								<th>MEM</th>
 								<th>Room count</th>
 								<th>Peer count</th>
+								<th>Audio producers</th>
+								<th>Video producers</th>
 						</tr>
 					</thead>
 					<tbody></tbody>
 				</table>
 			</div>
-			<div class="col s6">
+			<div class="col s12 m6">
 				<h6>Workers MEM</h6>
 				<canvas id="processWorkersMEMUsage" height="200" onmousedown="resetGraph(event)"></canvas>
 			</div>
 		</div>
 		<div class="row">
-			<div class="col s6">
+			<div class="col s12 m6">
 				<canvas id="peerCity" height="200"></canvas>
 			</div>
-			<div class="col s6"></div>
+			<div class="col s12 m6"></div>
 		</div>
 
 		<div class="row">
-			<table id="myTable" class="col s6">
+			<table id="myTable" class="col s12 m6">
 			    <thead>
 			        <tr>
 			            <th>Room name</th>
@@ -78,7 +80,8 @@
 			  	<% }) %>
 			    </tbody>
 			</table>
-			<div id="info" class="col s6"></div>
+
+			<div id="info" class="col s12 m6"></div>
 		</div>
 	</div>
 
@@ -108,6 +111,8 @@
 						<td>${Math.round(worker.mem/1024/1024)}mb (${worker.mem_percent}%)</td>
 						<td>${worker.room_count}</td>
 						<td>${worker.peer_count}</td>
+						<td>${worker.audio_producers}</td>
+						<td>${worker.video_producers}</td>
 					</tr>
 			`)
 		}
