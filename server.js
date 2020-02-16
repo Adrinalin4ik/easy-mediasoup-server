@@ -79,6 +79,7 @@ global.SERVER = mediaServer;
 mediaServer._workers.forEach((w) => {
 	w.on('@close', () => {
 		console.error("WORKER HAS BEEN CLOSED")
+		mediaServer.createWorker(5);
 		// try {
 		// 	console.log(mediaServer._workers)
 		// 	Array.from(mediaServer._workers).forEach((w) => {
@@ -215,23 +216,7 @@ app.get('/stats', auth, function (req, res) {
 
 app.get('/test', function (req, res) {
 	try {
-		const workers = [];
-		
-		Array.from(mediaServer._workers).forEach((w) => {
-			const worker = {
-				id: w.id,
-				audio_producers:0,
-				video_producers:0
-			}
-			
-			Array.from(w._rooms).forEach(r => {
-				r._peers.forEach(x => x._producers.forEach(producer => producer._data.kind === 'audio' ? worker.audio_producers++ : worker.video_producers++ ))
-			})
-
-			workers.push(worker)
-		})
-
-	  res.send(workers);
+	  res.send(200);
 	} catch (err) {
 		console.error(err)
 	}
