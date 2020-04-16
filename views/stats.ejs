@@ -72,7 +72,7 @@
 			    <tbody>
 			    <%rooms.forEach((r) => { %>
 			        <tr>
-			            <td onclick="show('<%=r.roomId%>')"><a href="https://app.trainingspace.online/training/room/<%=r.roomId%>?ghost=true" target="_blank"><%=r.roomId%></a></td>
+			            <td onclick="show('<%=r.roomId%>')"><a href="https://app.trainingspace.online/training/room/<%=r.roomId.replace('trainingspace_', '')%>?ghost=true" target="_blank"><%=r.roomId%></a></td>
 			            <td><%=r.worker ? r.worker.pid : "not assigned"%></td>
 			            <td><%=r.peers.length%></td>
 			            <td onclick="reloadRoom('<%=r.roomId%>')">Reload</td>
