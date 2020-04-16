@@ -22,7 +22,15 @@
 		  <div class="col s12 m6">
 				<h6>Devices</h6>
 		  	<canvas id="peerDevice" height="200"></canvas>
-		  </div>
+			</div>
+			<div class="col s12 m6">
+				<h6>Nginx stats</h6>
+		  	<iframe src="/nginx_status"></iframe>
+			</div>
+				<div class="col s12 m6">
+					<canvas id="peerCity" height="200"></canvas>
+				</div>
+				<div class="col s12 m6"></div>
 		  <div class="col s12 m6">
 				<h6>Main process stats</h6>
 		  	<canvas id="processResourcesUsage" height="200" onmousedown="resetGraph(event)"></canvas>
@@ -52,12 +60,6 @@
 				<h6>Workers MEM</h6>
 				<canvas id="processWorkersMEMUsage" height="200" onmousedown="resetGraph(event)"></canvas>
 			</div>
-		</div>
-		<div class="row">
-			<div class="col s12 m6">
-				<canvas id="peerCity" height="200"></canvas>
-			</div>
-			<div class="col s12 m6"></div>
 		</div>
 
 		<div class="row">
