@@ -79,7 +79,7 @@ global.SERVER = mediaServer;
 mediaServer._workers.forEach((w) => {
 	w.on('@close', () => {
 		console.error("WORKER HAS BEEN CLOSED")
-		mediaServer.createWorker(5);
+		// mediaServer.createWorker(5);
 		// try {
 		// 	console.log(mediaServer._workers)
 		// 	Array.from(mediaServer._workers).forEach((w) => {
