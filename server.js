@@ -214,6 +214,22 @@ app.get('/stats', auth, function (req, res) {
 	}
 })
 
+app.get('/api/stats', cors({origin:"*"}), function (req, res) {
+	try {
+		const params = {};
+		
+	  let total_peer_count = 0;
+	  params['rooms'] = stats.getRoomsData(rooms)
+		params['processResourcesUsage'] = stats.processResourcesUsage;
+		params['peerTimeData'] = stats.peerTimeData;
+		params['peerDeviceData'] = stats.peerDeviceData;
+	  params['total_peer_count'] = total_peer_count;
+	  res.json(params);
+	} catch (err) {
+		console.error(err)
+	}
+})
+
 app.get('/test', function (req, res) {
 	try {
 	  res.send(200);
