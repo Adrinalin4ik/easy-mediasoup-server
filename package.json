@@ -9,6 +9,8 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "axios": "^0.19.2",
+    "axios-https-proxy-fix": "^0.17.1",
     "chart.js": "^2.7.2",
     "colors": "^1.1.2",
     "cors": "^2.8.5",
@@ -21,12 +23,15 @@
     "express-http-auth": "^0.1.0",
     "file-stream-rotator": "^0.2.0",
     "geoip-lite": "^1.3.2",
+    "https-proxy-agent": "^5.0.0",
     "iplocation": "^5.0.1",
     "mediasoup": "2.5.6",
     "node-info": "^2.0.0",
     "path": "^0.12.7",
     "pidusage": "^2.0.17",
     "protoo-server": "^3.0.0",
-    "simple-node-logger": "^0.93.33"
+    "simple-node-logger": "^0.93.33",
+    "socks-proxy-agent": "^5.0.0",
+    "tunnel": "0.0.6"
   }
 }

@@ -39,6 +39,10 @@
 					<canvas id="processWorkersCPUUsage" height="200" onmousedown="resetGraph(event)"></canvas>
 				</div>
 				<div class="col s12 m6">
+					<h6>Workers MEM</h6>
+					<canvas id="processWorkersMEMUsage" height="200" onmousedown="resetGraph(event)"></canvas>
+				</div>
+				<div class="col s12 s12">
 					<h6>Workers stats</h6>
 					<table id="workersTable" class="responsive-table">
 						<thead>
@@ -50,14 +54,13 @@
 									<th>Peer count</th>
 									<th>Audio producers</th>
 									<th>Video producers</th>
+									<th>Audio consumers</th>
+									<th>Video consumers</th>
+									<th>Total loading</th>
 							</tr>
 						</thead>
 						<tbody></tbody>
 					</table>
-				</div>
-				<div class="col s12 m6">
-					<h6>Workers MEM</h6>
-					<canvas id="processWorkersMEMUsage" height="200" onmousedown="resetGraph(event)"></canvas>
 				</div>
 			</div>
 
@@ -104,7 +107,36 @@
 
 		const workerLastStats = stats.processResourcesUsage[stats.processResourcesUsage.length - 1].workers
 		console.log(workerLastStats)
+		
+		let loadingWeights = JSON.parse(localStorage.getItem('loadingWeights'))
+		
+		function changeLoadingWeights(videoProducer, audioProducer, videoConsumer, audioConsumer) {
+			localStorage.setItem('loadingWeights', JSON.stringify({
+				videoProducer,
+				audioProducer,
+				videoConsumer,
+				audioConsumer
+			}))
+		}
+
+		if (!loadingWeights) {
+			loadingWeights = {
+				videoProducer: 1.3,
+				audioProducer: 0.37,
+				videoConsumer: 0.7,
+				audioConsumer: 0.37
+			}
+		}
 		for (const worker of workerLastStats) {
+			// const loadingProducerVideo = worker.video_producers * loadingWeights.videoProducer
+			// const loadingProducerAudio = worker.audio_producers * loadingWeights.audioProducer
+
+			const loadingConsumerVideo = worker.video_consumers * loadingWeights.videoConsumer
+			const loadingConsumerAudio = worker.audio_consumers * loadingWeights.audioConsumer
+
+			const totalLoading = loadingConsumerVideo +
+													 loadingConsumerAudio
+
 			$('#workersTable > tbody').append(`
 					<tr>
 						<td>${worker.pid}</td>
@@ -114,6 +146,9 @@
 						<td>${worker.peer_count}</td>
 						<td>${worker.audio_producers}</td>
 						<td>${worker.video_producers}</td>
+						<td>${worker.audio_consumers}</td>
+						<td>${worker.video_consumers}</td>
+						<td>${totalLoading.toFixed(2)}</td>
 					</tr>
 			`)
 		}
