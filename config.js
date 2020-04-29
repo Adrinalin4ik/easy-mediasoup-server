@@ -45,7 +45,7 @@ module.exports =
 		],
 		rtcIPv4          : true,
 		rtcIPv6          : true,
-		rtcAnnouncedIPv4 : null,
+		rtcAnnouncedIPv4 : process.env.rtcAnnouncedIPv4,
 		rtcAnnouncedIPv6 : null,
 		rtcMinPort       : 40000,
 		rtcMaxPort       : 49999,
