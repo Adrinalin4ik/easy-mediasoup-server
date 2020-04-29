@@ -24,7 +24,7 @@ module.exports =
 		botToken: process.env.telegrambotToken,
 		chatId: process.env.telegramChatId,
 		warningLink: process.env.warningLink,
-		roomLink: "http://$roomId"
+		roomLink: process.env.roomLink || "http://$roomId.ru"
 	},
 	send_active_speakers_time_interval: +process.env.send_active_speakers_time_interval || 2000,
 	active_speaker_db_level: +process.env.active_speaker_db_level || -35,
