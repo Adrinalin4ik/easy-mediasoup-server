@@ -31,7 +31,7 @@ const basicAuth = require('express-basic-auth')
 const cors = require('cors')
 const Stats = require('./lib/Stats')
 const pidusage = require('pidusage')
-
+const axios = require('axios-https-proxy-fix').default;
 
 var realm = require('express-http-auth').realm('Mediasoup');
 
@@ -79,6 +79,21 @@ global.SERVER = mediaServer;
 mediaServer._workers.forEach((w) => {
 	w.on('@close', () => {
 		console.error("WORKER HAS BEEN CLOSED")
+		axios.request({
+			url: `https://api.telegram.org/${config.telegram.botToken}/sendMessage`,
+			method: 'post',
+			params: {
+				parse_mode: 'Markdown',
+				chat_id: config.telegram.chatId,
+				text: `❗ [${config.mediaserverName}](${config.telegram.warningLink}), worker died	`
+			},
+			headers: {'Content-Type': 'application/json'},
+			timeout: 10000,
+			proxy: {
+				host: config.telegram.proxyHost,
+				port: +config.telegram.proxyPort
+			}
+		})
 		// mediaServer.createWorker(5);
 		// try {
 		// 	console.log(mediaServer._workers)
