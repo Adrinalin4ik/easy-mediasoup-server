@@ -9,7 +9,7 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "axios-https-proxy-fix": "^0.17.1",
     "chart.js": "^2.7.2",
     "colors": "^1.1.2",
